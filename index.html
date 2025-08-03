@@ -3,11 +3,197 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nurse Recommender</title>
-  <link rel="stylesheet" href="assets/style.css">
+  <title>Nurse Recommender | HealthBridge Pathways</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background-color: #f6fafd;
+      color: #333;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #007a78;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 1.2rem;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      margin-top: 2rem;
+      width: 100%;
+      background: #007a78;
+      color: white;
+      border: none;
+      padding: 1rem;
+      font-size: 1.1rem;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #005f5c;
+    }
+    .result {
+      margin-top: 2rem;
+      background: #e8f9f8;
+      border-left: 5px solid #007a78;
+      padding: 1rem;
+      border-radius: 6px;
+    }
+    .recommendation {
+      margin-bottom: 1rem;
+    }
+    .recommendation h3 {
+      margin: 0;
+      color: #007a78;
+    }
+  </style>
 </head>
 <body>
-  <div id="root">Loading Nurse Recommender Tool...</div>
-  <script type="module" src="assets/main.js"></script>
+  <div class="container">
+    <h1>🌍 Nurse Pathway Recommender</h1>
+    <form id="nurseForm">
+      <label for="qualification">Nursing Qualification Level:</label>
+      <select id="qualification">
+        <option value="BSN">Bachelor of Science in Nursing</option>
+        <option value="Diploma">Diploma</option>
+        <option value="MSN">Master of Nursing</option>
+      </select>
+
+      <label for="experience">Years of Clinical Experience:</label>
+      <select id="experience">
+        <option value="<1">Less than 1 year</option>
+        <option value="1-3">1–3 years</option>
+        <option value=">3">More than 3 years</option>
+      </select>
+
+      <label for="license">Current Country of License:</label>
+      <input type="text" id="license" placeholder="e.g., Philippines" />
+
+      <label for="ielts">IELTS/English Test Score (Overall Band):</label>
+      <input type="text" id="ielts" placeholder="e.g., 7.5" />
+
+      <label for="priority">What is your top priority?</label>
+      <select id="priority">
+        <option value="none">No preference</option>
+        <option value="speed">Fastest processing</option>
+        <option value="cost">Lowest cost</option>
+        <option value="income">Highest earning potential</option>
+        <option value="immigration">Pathway to immigration</option>
+      </select>
+
+      <label for="willingness">Willing to take additional exams?</label>
+      <select id="willingness">
+        <option value="any">Whatever is required / No preference</option>
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+      </select>
+
+      <label for="preferred">Preferred Countries (Optional):</label>
+      <input type="text" id="preferred" placeholder="e.g., Canada, UK" />
+
+      <button type="submit">Get Recommendations</button>
+    </form>
+
+    <div class="result" id="result" style="display: none;"></div>
+  </div>
+
+  <script>
+    const countries = [
+      {
+        name: "Canada - Nova Scotia",
+        cost: 3,
+        speed: 4,
+        income: 3,
+        immigration: 5,
+        minIELTS: 7,
+        examsRequired: true,
+        notes: "Moderate cost, NCAS exam required, good immigration route."
+      },
+      {
+        name: "UK",
+        cost: 2,
+        speed: 4,
+        income: 3,
+        immigration: 4,
+        minIELTS: 7,
+        examsRequired: true,
+        notes: "CBT + OSCE required, faster NMC process."
+      },
+      {
+        name: "Australia",
+        cost: 4,
+        speed: 2,
+        income: 4,
+        immigration: 4,
+        minIELTS: 7,
+        examsRequired: true,
+        notes: "Bridging required, higher income."
+      },
+      {
+        name: "USA - Texas",
+        cost: 2,
+        speed: 3,
+        income: 4,
+        immigration: 5,
+        minIELTS: 6.5,
+        examsRequired: true,
+        notes: "NCLEX only, quick BON response."
+      },
+      {
+        name: "New Zealand",
+        cost: 3,
+        speed: 3,
+        income: 3,
+        immigration: 4,
+        minIELTS: 7,
+        examsRequired: true,
+        notes: "CAP program needed, similar to AUS."
+      }
+    ];
+
+    document.getElementById("nurseForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const ielts = parseFloat(document.getElementById("ielts").value);
+      const priority = document.getElementById("priority").value;
+      const willingness = document.getElementById("willingness").value;
+
+      let scored = countries.map(c => {
+        let score = 0;
+        if (ielts >= c.minIELTS) score += 2;
+        if (willingness === "yes" || willingness === "any" || !c.examsRequired) score += 1;
+        if (priority !== "none") score += c[priority];
+        return { ...c, score };
+      });
+
+      scored.sort((a, b) => b.score - a.score);
+      const top3 = scored.slice(0, 3);
+
+      const resultBox = document.getElementById("result");
+      resultBox.innerHTML = top3.map((c, i) => `
+        <div class="recommendation">
+          <h3>${i === 0 ? "🌍 Top Recommendation" : i === 1 ? "📝 Next Best" : "📍 Third Option"}: ${c.name}</h3>
+          <p>${c.notes}</p>
+        </div>`).join("");
+      resultBox.style.display = "block";
+    });
+  </script>
 </body>
 </html>

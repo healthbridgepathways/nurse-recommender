@@ -112,60 +112,39 @@
     </form>
 
     <div class="result" id="result" style="display: none;"></div>
+    <div id="restartContainer" style="display: none; text-align: center; margin-top: 1rem;">
+      <button onclick="location.reload()">🔁 Start Over</button>
+    </div>
   </div>
 
   <script>
     const countries = [
-      {
-        name: "Canada - Nova Scotia",
-        cost: 3,
-        speed: 4,
-        income: 3,
-        immigration: 5,
-        minIELTS: 7,
-        examsRequired: true,
-        notes: "Moderate cost, NCAS exam required, good immigration route."
-      },
-      {
-        name: "UK",
-        cost: 2,
-        speed: 4,
-        income: 3,
-        immigration: 4,
-        minIELTS: 7,
-        examsRequired: true,
-        notes: "CBT + OSCE required, faster NMC process."
-      },
-      {
-        name: "Australia",
-        cost: 4,
-        speed: 2,
-        income: 4,
-        immigration: 4,
-        minIELTS: 7,
-        examsRequired: true,
-        notes: "Bridging required, higher income."
-      },
-      {
-        name: "USA - Texas",
-        cost: 2,
-        speed: 3,
-        income: 4,
-        immigration: 5,
-        minIELTS: 6.5,
-        examsRequired: true,
-        notes: "NCLEX only, quick BON response."
-      },
-      {
-        name: "New Zealand",
-        cost: 3,
-        speed: 3,
-        income: 3,
-        immigration: 4,
-        minIELTS: 7,
-        examsRequired: true,
-        notes: "CAP program needed, similar to AUS."
-      }
+      // 9 Canadian Provinces (abbreviated here for brevity — full list inserted earlier)
+      { name: "Canada - British Columbia", cost: 3, speed: 3, income: 4, immigration: 5, minIELTS: 7, examsRequired: true, notes: "NCAS required, immigration-friendly, moderate cost." },
+      { name: "Canada - Ontario", cost: 2, speed: 4, income: 4, immigration: 5, minIELTS: 7, examsRequired: true, notes: "CNO process, relatively fast, strong job market." },
+      { name: "Canada - Alberta", cost: 2, speed: 3, income: 4, immigration: 4, minIELTS: 7, examsRequired: true, notes: "Moderate processing time, ANCC pathways available." },
+      { name: "Canada - Manitoba", cost: 1, speed: 3, income: 3, immigration: 4, minIELTS: 7, examsRequired: true, notes: "Affordable, NCAS applicable, friendly immigration." },
+      { name: "Canada - Saskatchewan", cost: 2, speed: 3, income: 3, immigration: 4, minIELTS: 7, examsRequired: true, notes: "NCAS pathway, PNP support." },
+      { name: "Canada - Nova Scotia", cost: 3, speed: 4, income: 3, immigration: 5, minIELTS: 7, examsRequired: true, notes: "NSNP immigration route, NCAS required." },
+      { name: "Canada - New Brunswick", cost: 2, speed: 3, income: 3, immigration: 4, minIELTS: 7, examsRequired: true, notes: "Smaller pool, PNP support, NCAS." },
+      { name: "Canada - Newfoundland", cost: 1, speed: 2, income: 2, immigration: 3, minIELTS: 7, examsRequired: true, notes: "Slower system but low cost of living." },
+      { name: "Canada - Prince Edward Island", cost: 2, speed: 3, income: 2, immigration: 3, minIELTS: 7, examsRequired: true, notes: "Smaller market, friendly licensing board." },
+
+      // 9 US States
+      { name: "USA - Texas", cost: 2, speed: 3, income: 4, immigration: 5, minIELTS: 6.5, examsRequired: true, notes: "Fast BON response, NCLEX only." },
+      { name: "USA - California", cost: 3, speed: 2, income: 5, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "Strict documentation, long processing time." },
+      { name: "USA - New York", cost: 3, speed: 3, income: 4, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "CGFNS required, moderate timeline." },
+      { name: "USA - Florida", cost: 2, speed: 4, income: 3, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "No CGFNS, quicker license, NCLEX only." },
+      { name: "USA - Illinois", cost: 2, speed: 3, income: 3, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "Verification required, moderate speed." },
+      { name: "USA - Georgia", cost: 1, speed: 4, income: 3, immigration: 3, minIELTS: 6.5, examsRequired: true, notes: "Quick approval, lower cost." },
+      { name: "USA - Washington", cost: 3, speed: 3, income: 4, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "CGFNS + NCLEX required." },
+      { name: "USA - Arizona", cost: 2, speed: 3, income: 3, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "NCLEX only, moderate process." },
+      { name: "USA - North Carolina", cost: 1, speed: 4, income: 3, immigration: 4, minIELTS: 6.5, examsRequired: true, notes: "Efficient and friendly licensing." },
+
+      // UK, AU, NZ
+      { name: "UK", cost: 2, speed: 4, income: 3, immigration: 4, minIELTS: 7, examsRequired: true, notes: "CBT + OSCE required, faster NMC process." },
+      { name: "Australia", cost: 4, speed: 2, income: 4, immigration: 4, minIELTS: 7, examsRequired: true, notes: "Bridging required, higher income." },
+      { name: "New Zealand", cost: 3, speed: 3, income: 3, immigration: 4, minIELTS: 7, examsRequired: true, notes: "CAP program needed, similar to AUS." }
     ];
 
     document.getElementById("nurseForm").addEventListener("submit", function (e) {
@@ -174,25 +153,76 @@
       const ielts = parseFloat(document.getElementById("ielts").value);
       const priority = document.getElementById("priority").value;
       const willingness = document.getElementById("willingness").value;
+      const qualification = document.getElementById("qualification").value;
+      const experience = document.getElementById("experience").value;
 
       let scored = countries.map(c => {
         let score = 0;
-        if (ielts >= c.minIELTS) score += 2;
-        if (willingness === "yes" || willingness === "any" || !c.examsRequired) score += 1;
+
+        // 🚫 Disqualify based on non-negotiables
+        if (ielts < c.minIELTS) return { ...c, score: -1000 };
+        if (experience === "<1") {
+          if (c.name.includes("British Columbia") || c.name.includes("Ontario") || c.name.includes("Australia") || c.name.includes("New Zealand") || c.name.includes("UK")) {
+            return { ...c, score: -1000 };
+          }
+        }
+        if ((qualification === "Diploma") && (c.name.includes("Australia") || c.name.includes("New Zealand"))) {
+          return { ...c, score: -1000 };
+        }
+
+        if (ielts < c.minIELTS) return { ...c, score: -1000 };
+        if (ielts >= c.minIELTS + 0.5) score += 2;
+        else if (ielts >= c.minIELTS) score += 1;
+
+        if (willingness === "yes" || willingness === "any") score += 1;
+        else if (willingness === "no" && c.examsRequired) score -= 1;
+
         if (priority !== "none") score += c[priority];
+        if (experience === ">3") score += 2;
+        else if (experience === "1-3") score += 1;
+
+        if (qualification === "MSN") score += 2;
+        else if (qualification === "BSN") score += 1;
+
         return { ...c, score };
       });
 
       scored.sort((a, b) => b.score - a.score);
-      const top3 = scored.slice(0, 3);
+      // Customized top 5 logic based on preference
+      let preferred = document.getElementById("preferred").value.toLowerCase();
+      let isCanadaPreferred = preferred.includes("canada");
+      let isUSPreferred = preferred.includes("usa") || preferred.includes("us") || preferred.includes("america");
+
+      let topCanada = scored.filter(c => c.name.startsWith("Canada")).slice(0, 3);
+      let topUS = scored.filter(c => c.name.startsWith("USA")).slice(0, 3);
+      let topOthers = scored.filter(c => !c.name.startsWith("Canada") && !c.name.startsWith("USA"));
+
+      let top5 = [];
+      if (isCanadaPreferred) {
+        top5 = [...topCanada, ...topOthers.slice(0, 2)];
+      } else if (isUSPreferred) {
+        top5 = [...topUS, ...topOthers.slice(0, 2)];
+      } else {
+        top5 = scored.slice(0, 5);
+      }
 
       const resultBox = document.getElementById("result");
-      resultBox.innerHTML = top3.map((c, i) => `
+      let preferredMatched = top5.some(c => preferred && c.name.toLowerCase().includes(preferred));
+
+      let explanation = "";
+      if (preferred && !preferredMatched) {
+        explanation = `<p style='color:#d9534f; font-weight:bold;'>Note: Your preferred country (${preferred}) was not included in the top 5 due to a lower compatibility score based on your profile (e.g., IELTS, experience, exams).</p>`;
+      }
+
+      resultBox.innerHTML = explanation + top5.map((c, i) => `
         <div class="recommendation">
-          <h3>${i === 0 ? "🌍 Top Recommendation" : i === 1 ? "📝 Next Best" : "📍 Third Option"}: ${c.name}</h3>
+          <h3>${i === 0 ? "🌍 Top Recommendation" : i === 1 ? "📝 Next Best" : i === 2 ? "📍 Third Option" : i === 3 ? "⭐ Fourth Option" : "✅ Fifth Option"}: ${c.name}</h3>
           <p>${c.notes}</p>
         </div>`).join("");
+
       resultBox.style.display = "block";
+      document.getElementById("nurseForm").style.display = "none";
+      document.getElementById("restartContainer").style.display = "block";
     });
   </script>
 </body>
